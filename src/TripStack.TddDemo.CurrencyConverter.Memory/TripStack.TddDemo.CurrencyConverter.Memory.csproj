@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard1.6</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TripStack.TddDemo.CurrencyConverter.Abstractions\TripStack.TddDemo.CurrencyConverter.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
