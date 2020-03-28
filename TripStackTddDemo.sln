@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.WebApi", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyConverter.Abstractions", "src\TripStack.TddDemo.CurrencyConverter.Abstractions\TripStack.TddDemo.CurrencyConverter.Abstractions.csproj", "{748DB823-68DB-479A-B8F9-2B91CF5E6175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyConverter.Memory", "src\TripStack.TddDemo.CurrencyConverter.Memory\TripStack.TddDemo.CurrencyConverter.Memory.csproj", "{91F863A5-9139-449B-83F3-DBC59CE34763}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyExchangeApi", "src\TripStack.TddDemo.CurrencyExchangeApi\TripStack.TddDemo.CurrencyExchangeApi.csproj", "{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,7 +28,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A67234F3-9044-4604-9370-66F3425B4DC3} = {211224A7-E530-445C-810D-87C0BB4EA88B}
 		{748DB823-68DB-479A-B8F9-2B91CF5E6175} = {211224A7-E530-445C-810D-87C0BB4EA88B}
-		{91F863A5-9139-449B-83F3-DBC59CE34763} = {211224A7-E530-445C-810D-87C0BB4EA88B}
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3} = {211224A7-E530-445C-810D-87C0BB4EA88B}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A67234F3-9044-4604-9370-66F3425B4DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -55,17 +55,17 @@ Global
 		{748DB823-68DB-479A-B8F9-2B91CF5E6175}.Release|x64.Build.0 = Release|Any CPU
 		{748DB823-68DB-479A-B8F9-2B91CF5E6175}.Release|x86.ActiveCfg = Release|Any CPU
 		{748DB823-68DB-479A-B8F9-2B91CF5E6175}.Release|x86.Build.0 = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|x64.Build.0 = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Debug|x86.Build.0 = Debug|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|x64.ActiveCfg = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|x64.Build.0 = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|x86.ActiveCfg = Release|Any CPU
-		{91F863A5-9139-449B-83F3-DBC59CE34763}.Release|x86.Build.0 = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|x64.Build.0 = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Debug|x86.Build.0 = Debug|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|x64.ActiveCfg = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|x64.Build.0 = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|x86.ActiveCfg = Release|Any CPU
+		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
