@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard1.6</TargetFramework>
+        <RootNamespace>TripStack.TddDemo.CurrencyConverter.Abstractions</RootNamespace>
     </PropertyGroup>
 
 </Project>

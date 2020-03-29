@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F0E9C32A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.WebApi", "src\TripStack.TddDemo.WebApi\TripStack.TddDemo.WebApi.csproj", "{A67234F3-9044-4604-9370-66F3425B4DC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyConverter.Abstractions", "src\TripStack.TddDemo.CurrencyConverter.Abstractions\TripStack.TddDemo.CurrencyConverter.Abstractions.csproj", "{748DB823-68DB-479A-B8F9-2B91CF5E6175}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyExchange.Abstractions", "src\TripStack.TddDemo.CurrencyExchange.Abstractions\TripStack.TddDemo.CurrencyExchange.Abstractions.csproj", "{748DB823-68DB-479A-B8F9-2B91CF5E6175}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyExchangeApi", "src\TripStack.TddDemo.CurrencyExchangeApi\TripStack.TddDemo.CurrencyExchangeApi.csproj", "{2BB0DF2B-5129-48D1-82E2-7249281AEEA3}"
 EndProject

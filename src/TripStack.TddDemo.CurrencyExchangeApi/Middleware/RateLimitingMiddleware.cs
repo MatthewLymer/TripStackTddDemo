@@ -11,8 +11,8 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
 {
     internal sealed class RateLimitingMiddleware
     {
-        private const int MaxInvocationsPerPeriod = 25;
-        private static readonly TimeSpan SamplePeriod = TimeSpan.FromMinutes(5);
+        private const int MaxInvocationsPerPeriod = 15;
+        private static readonly TimeSpan SamplePeriod = TimeSpan.FromMinutes(1);
         private static readonly object Sync = new object();
         private static readonly Dictionary<string, int> InvocationCounts = new Dictionary<string, int>();
         private static readonly Stopwatch PeriodStopwatch = Stopwatch.StartNew();
@@ -42,7 +42,7 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
                 if (PeriodStopwatch.Elapsed >= SamplePeriod)
                 {
                     InvocationCounts.Clear();
-                    PeriodStopwatch.Reset();
+                    PeriodStopwatch.Restart();
                 }
 
                 if (!InvocationCounts.TryGetValue(identityName, out invocationCount))
@@ -51,25 +51,24 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
                 }
 
                 invocationCount++;
-
-                if (invocationCount > MaxInvocationsPerPeriod)
-                {
-                    context.Response.StatusCode = (int) HttpStatusCode.TooManyRequests;
-                    return;
-                }
-
+                
                 InvocationCounts[identityName] = invocationCount;
             }
 
-            await _next(context);
+            var resetSeconds = (int) (SamplePeriod - PeriodStopwatch.Elapsed).TotalSeconds;
 
             var responseHeaders = context.Response.Headers;
+            responseHeaders.Add("X-RateLimit-Limit", MaxInvocationsPerPeriod.ToString());
+            responseHeaders.Add("X-RateLimit-Remaining", Math.Max(0, MaxInvocationsPerPeriod - invocationCount).ToString());            
+            responseHeaders.Add("X-RateLimit-Reset", resetSeconds.ToString(CultureInfo.InvariantCulture));
             
-            var resetSeconds = (SamplePeriod - PeriodStopwatch.Elapsed).TotalSeconds;
-            
-            responseHeaders.Add("X-Invocation-Count", invocationCount.ToString());
-            responseHeaders.Add("X-Invocation-Limit", MaxInvocationsPerPeriod.ToString());
-            responseHeaders.Add("X-Invocation-Reset-Seconds", resetSeconds.ToString(CultureInfo.InvariantCulture));
+            if (invocationCount > MaxInvocationsPerPeriod)
+            {
+                context.Response.StatusCode = (int) HttpStatusCode.TooManyRequests;
+                return;
+            }
+
+            await _next(context);
         }
     }
 }

@@ -34,6 +34,13 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
         {
         }
 
+        protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            Response.Headers["WWW-Authenticate"] = "Bearer realm=\"TripStack Currency Converter API\"";
+            
+            return base.HandleChallengeAsync(properties);
+        }
+
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             await Task.CompletedTask;
@@ -60,12 +67,12 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
                 return AuthenticateResult.Fail("Given token did not match any tenants.");
             }
             
-            var claims = new[] {
+            var claims = new [] {
                 new Claim(ClaimTypes.NameIdentifier, token.ToString()),
                 new Claim(ClaimTypes.Name, tenantName),
             };
 
-            var identity = new ClaimsIdentity(claims);
+            var identity = new ClaimsIdentity(claims, Scheme.Name);
 
             var principal = new ClaimsPrincipal(identity); 
             
