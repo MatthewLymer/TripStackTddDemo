@@ -4,5 +4,10 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TripStack.TddDemo.CurrencyExchange.Abstractions\TripStack.TddDemo.CurrencyExchange.Abstractions.csproj" />
+      <ProjectReference Include="..\TripStack.TddDemo.CurrencyExchange.ApiClient\TripStack.TddDemo.CurrencyExchange.ApiClient.csproj" />
+    </ItemGroup>
+
 
 </Project>
