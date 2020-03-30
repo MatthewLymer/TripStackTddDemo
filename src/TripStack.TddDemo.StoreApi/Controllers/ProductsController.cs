@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using TripStack.TddDemo.CurrencyConverter.Abstractions;
 using TripStack.TddDemo.WebApi.Models;
+using TripStack.TddDemo.WebApi.Persistence;
 
 namespace TripStack.TddDemo.WebApi.Controllers
 {
@@ -16,52 +14,10 @@ namespace TripStack.TddDemo.WebApi.Controllers
     {
         private const string DefaultCurrencyCode = "USD";
         
-        private readonly ILogger<ProductsController> _logger;
         private readonly IGetExchangeRates _exchangeRateGetter;
 
-        private readonly IReadOnlyCollection<ProductModel> _products = new []
+        public ProductsController(IGetExchangeRates exchangeRateGetter)
         {
-            new ProductModel
-            {
-                Name = "Maple Syrup, 250ml",
-                CurrencyCode = "CAD",
-                Price = 9.99m
-            },
-            new ProductModel
-            {
-                Name = "American Cheese, 454g",
-                CurrencyCode = "USD",
-                Price = 6.95m
-            },
-            new ProductModel
-            {
-                Name = "Marmite, 454g",
-                CurrencyCode = "GBP",
-                Price = 4.99m
-            },
-            new ProductModel
-            {
-                Name = "Camembert Cheese, 150g",
-                CurrencyCode = "EUR",
-                Price = 21.53m
-            },
-            new ProductModel
-            {
-                Name = "Prosciutto, 50g",
-                CurrencyCode = "EUR",
-                Price = 7.29m
-            },            
-            new ProductModel
-            {
-                Name = "Avacado, 3-pack",
-                CurrencyCode = "MXN",
-                Price = 69.47m
-            }
-        };
-
-        public ProductsController(ILogger<ProductsController> logger, IGetExchangeRates exchangeRateGetter)
-        {
-            _logger = logger;
             _exchangeRateGetter = exchangeRateGetter;
         }
 
@@ -73,7 +29,8 @@ namespace TripStack.TddDemo.WebApi.Controllers
                 currencyCode = DefaultCurrencyCode;
             }
 
-            var productResponseModels = _products
+            var productResponseModels = ProductRespository
+                .GetProducts()
                 .Select(product => new ProductResponseModel {Product = product})
                 .ToList();
 
@@ -82,15 +39,17 @@ namespace TripStack.TddDemo.WebApi.Controllers
                 var product = model.Product;
                 
                 model.ConvertedPrice = product.Price * await _exchangeRateGetter.GetExchangeRateAsync(
-                                           product.CurrencyCode,
-                                           currencyCode,
-                                           token);
+                    product.CurrencyCode,
+                    currencyCode,
+                    token);
             }
 
-            return Ok(new GetProductsResponseModel
+            var responseModel = new GetProductsResponseModel
             {
                 Data = productResponseModels
-            });
+            };
+            
+            return Ok(responseModel);
         }
     }
 }

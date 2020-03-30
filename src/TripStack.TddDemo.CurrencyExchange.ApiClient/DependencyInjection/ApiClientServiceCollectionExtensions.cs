@@ -6,24 +6,22 @@ namespace TripStack.TddDemo.CurrencyExchange.ApiClient.DependencyInjection
 {
     public static class ApiClientServiceCollectionExtensions
     {
-        public static IServiceCollection AddCurrencyExchangeApiClient(this IServiceCollection services, string apiBaseUrl, string authenticationKey)
+        public static IServiceCollection AddCurrencyExchangeApiClient(this IServiceCollection services, Action<CurrencyExchangeSettings> setupAction)
         {
             if (services == null)
             {
                 throw new ArgumentNullException(nameof(services));
             }
 
-            if (string.IsNullOrEmpty(apiBaseUrl))
+            if (setupAction == null)
             {
-                throw new ArgumentException("Value cannot be null or empty.", nameof(apiBaseUrl));
+                throw new ArgumentNullException(nameof(setupAction));
             }
+            
+            services.AddOptions();
+            services.Configure(setupAction);
 
-            if (string.IsNullOrEmpty(authenticationKey))
-            {
-                throw new ArgumentException("Value cannot be null or empty.", nameof(authenticationKey));
-            }
-
-            services.AddSingleton<IGetExchangeRates>(sp => new CurrencyExchangeApiClient(apiBaseUrl, authenticationKey));
+            services.AddSingleton<IGetExchangeRates, CurrencyExchangeApiClient>();
 
             return services;
         }

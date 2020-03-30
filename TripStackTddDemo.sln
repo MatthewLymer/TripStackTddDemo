@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyExchange.ApiClient", "src\TripStack.TddDemo.CurrencyExchange.ApiClient\TripStack.TddDemo.CurrencyExchange.ApiClient.csproj", "{9685483C-A6AB-4F63-8A2E-684539980347}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.StoreApi.Tests", "tests\TripStack.TddDemo.StoreApi.Tests\TripStack.TddDemo.StoreApi.Tests.csproj", "{510F90D9-8899-4483-AED4-4BAD5F341501}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,7 @@ Global
 		{748DB823-68DB-479A-B8F9-2B91CF5E6175} = {211224A7-E530-445C-810D-87C0BB4EA88B}
 		{2BB0DF2B-5129-48D1-82E2-7249281AEEA3} = {211224A7-E530-445C-810D-87C0BB4EA88B}
 		{9685483C-A6AB-4F63-8A2E-684539980347} = {211224A7-E530-445C-810D-87C0BB4EA88B}
+		{510F90D9-8899-4483-AED4-4BAD5F341501} = {F0E9C32A-1F83-4AE9-8739-11A92CBEDBDB}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A67234F3-9044-4604-9370-66F3425B4DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -82,5 +85,17 @@ Global
 		{9685483C-A6AB-4F63-8A2E-684539980347}.Release|x64.Build.0 = Release|Any CPU
 		{9685483C-A6AB-4F63-8A2E-684539980347}.Release|x86.ActiveCfg = Release|Any CPU
 		{9685483C-A6AB-4F63-8A2E-684539980347}.Release|x86.Build.0 = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|x64.Build.0 = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Debug|x86.Build.0 = Debug|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|x64.ActiveCfg = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|x64.Build.0 = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|x86.ActiveCfg = Release|Any CPU
+		{510F90D9-8899-4483-AED4-4BAD5F341501}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

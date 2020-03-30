@@ -5,8 +5,10 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using TripStack.TddDemo.CurrencyConverter.Abstractions;
+using TripStack.TddDemo.CurrencyExchange.ApiClient.DependencyInjection;
 
 namespace TripStack.TddDemo.CurrencyExchange.ApiClient
 {
@@ -17,10 +19,11 @@ namespace TripStack.TddDemo.CurrencyExchange.ApiClient
 
         private readonly HttpClient _httpClient = new HttpClient();
 
-        public CurrencyExchangeApiClient(string apiBaseUrl, string authorizationKey)
+        public CurrencyExchangeApiClient(IOptions<CurrencyExchangeSettings> options)
         {
-            _apiBaseUrl = apiBaseUrl;
-            _authorizationKey = authorizationKey;
+            var value = options.Value;
+            _apiBaseUrl = value.Url;
+            _authorizationKey = value.ApiKey;
         }
 
         public void Dispose()

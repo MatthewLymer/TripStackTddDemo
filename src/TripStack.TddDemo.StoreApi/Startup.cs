@@ -1,30 +1,43 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TripStack.TddDemo.CurrencyExchange.ApiClient.DependencyInjection;
+using TripStack.TddDemo.WebApi.Settings;
 
 namespace TripStack.TddDemo.WebApi
 {
-    public class Startup
+    internal sealed class Startup
     {
+        private readonly IConfiguration _configuration;
+        
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
 
-            services.AddCurrencyExchangeApiClient("http://localhost:5100", "AC72FE70-BC7C-431E-B27C-292BEB6ED350");
-        }
+            services.AddStackExchangeRedisCache(x =>
+            {
+                var settings = _configuration.GetSection("Redis").Get<RedisSettings>();
+                x.Configuration = $"{settings.Host}:{settings.Port}";
+            });
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            services.AddCurrencyExchangeApiClient(x =>
+            {
+                var settings = _configuration.GetSection("CurrencyExchange").Get<CurrencyExchangeSettings>();
+                x.Url = settings.Url;
+                x.ApiKey = settings.ApiKey;
+            });
+        }
+        
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

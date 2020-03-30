@@ -13,9 +13,10 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
     {
         private const int MaxInvocationsPerPeriod = 15;
         private static readonly TimeSpan SamplePeriod = TimeSpan.FromMinutes(1);
-        private static readonly object Sync = new object();
-        private static readonly Dictionary<string, int> InvocationCounts = new Dictionary<string, int>();
-        private static readonly Stopwatch PeriodStopwatch = Stopwatch.StartNew();
+        
+        private readonly object _sync = new object();
+        private readonly Dictionary<string, int> _invocationCounts = new Dictionary<string, int>();
+        private readonly Stopwatch _periodStopwatch = Stopwatch.StartNew();
 
         private readonly RequestDelegate _next;
 
@@ -37,25 +38,25 @@ namespace TripStack.TddDemo.CurrencyExchangeApi.Middleware
 
             int invocationCount;
 
-            lock (Sync)
+            lock (_sync)
             {
-                if (PeriodStopwatch.Elapsed >= SamplePeriod)
+                if (_periodStopwatch.Elapsed >= SamplePeriod)
                 {
-                    InvocationCounts.Clear();
-                    PeriodStopwatch.Restart();
+                    _invocationCounts.Clear();
+                    _periodStopwatch.Restart();
                 }
 
-                if (!InvocationCounts.TryGetValue(identityName, out invocationCount))
+                if (!_invocationCounts.TryGetValue(identityName, out invocationCount))
                 {
                     invocationCount = 0;
                 }
 
                 invocationCount++;
                 
-                InvocationCounts[identityName] = invocationCount;
+                _invocationCounts[identityName] = invocationCount;
             }
 
-            var resetSeconds = (int) (SamplePeriod - PeriodStopwatch.Elapsed).TotalSeconds;
+            var resetSeconds = (int) (SamplePeriod - _periodStopwatch.Elapsed).TotalSeconds;
 
             var responseHeaders = context.Response.Headers;
             responseHeaders.Add("X-RateLimit-Limit", MaxInvocationsPerPeriod.ToString());
