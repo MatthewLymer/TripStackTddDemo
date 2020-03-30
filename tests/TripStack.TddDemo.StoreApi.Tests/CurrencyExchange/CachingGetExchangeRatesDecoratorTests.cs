@@ -5,9 +5,13 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     public sealed class CachingGetExchangeRatesDecoratorTests
     {
         [Fact]
-        public void ShouldPass()
+        public void ShouldCreateInstance()
         {
-            Assert.True(true);
+            var _ = new CachingGetExchangeRatesDecorator();
         }
+    }
+
+    public sealed class CachingGetExchangeRatesDecorator
+    {
     }
 }
