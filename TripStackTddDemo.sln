@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{211224A7-E53
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F0E9C32A-1F83-4AE9-8739-11A92CBEDBDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.WebApi", "src\TripStack.TddDemo.WebApi\TripStack.TddDemo.WebApi.csproj", "{A67234F3-9044-4604-9370-66F3425B4DC3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.StoreApi", "src\TripStack.TddDemo.StoreApi\TripStack.TddDemo.StoreApi.csproj", "{A67234F3-9044-4604-9370-66F3425B4DC3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TripStack.TddDemo.CurrencyExchange.Abstractions", "src\TripStack.TddDemo.CurrencyExchange.Abstractions\TripStack.TddDemo.CurrencyExchange.Abstractions.csproj", "{748DB823-68DB-479A-B8F9-2B91CF5E6175}"
 EndProject
