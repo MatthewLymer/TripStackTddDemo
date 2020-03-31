@@ -79,7 +79,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
 
         public Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
         {
-            return _inner.GetExchangeRateAsync(fromCurrency, toCurrency, CancellationToken.None);
+            return _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
         }
     }
 }
