@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using TripStack.TddDemo.CurrencyConverter.Abstractions;
 using Xunit;
@@ -30,6 +31,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 5. Ensure the value can be retrieved from cache
     // 6. Ensure distributed cache is used to share cache between instances
     // 7. Ensure cache expires after 1 minute
+    // 8. Ensure unit test doesn't take 1 minute to execute
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -44,7 +46,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         [Fact]
         public async Task ShouldReturnInnerServiceValueIfCacheMiss()
         {
-            var distributedCache = CreateDistributedCache();
+            var distributedCache = CreateDistributedCache(null);
             
             const decimal expectedValue = 5m;
             
@@ -61,7 +63,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         [Fact]
         public async Task ShouldCacheRatesUsingDistributedCache()
         {
-            var distributedCache = CreateDistributedCache();
+            var distributedCache = CreateDistributedCache(null);
             
             var inner = new MemoryExchangeRateProvider();
             inner.Set("EUR", "GBP", 1.1m);
@@ -81,7 +83,9 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         [Fact]
         public async Task ShouldExpireCacheAfter1Minute()
         {
-            var distributedCache = CreateDistributedCache();
+            var mockSystemClock = new MockSystemClock();
+            
+            var distributedCache = CreateDistributedCache(mockSystemClock);
             
             var inner = new MemoryExchangeRateProvider();
             inner.Set("CAD", "USD", 2m);
@@ -92,7 +96,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             
             inner.Set("CAD", "USD", 4m);
 
-            await Task.Delay(TimeSpan.FromMinutes(1));
+            mockSystemClock.UtcNow += TimeSpan.FromMinutes(1);
 
             var value2 = await decorator.GetExchangeRateAsync("CAD", "USD", CancellationToken.None);
             
@@ -100,10 +104,19 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             Assert.Equal(4m, value2);
         }
 
-        private static MemoryDistributedCache CreateDistributedCache()
+        private sealed class MockSystemClock : ISystemClock
+        {
+            public DateTimeOffset UtcNow { get; set; } = DateTimeOffset.UtcNow;
+        }
+
+        private static MemoryDistributedCache CreateDistributedCache(ISystemClock clock)
         {
             return new MemoryDistributedCache(
-                new OptionsWrapper<MemoryDistributedCacheOptions>(new MemoryDistributedCacheOptions()));
+                new OptionsWrapper<MemoryDistributedCacheOptions>(
+                    new MemoryDistributedCacheOptions
+                    {
+                        Clock = clock
+                    }));
         }
 
         private sealed class MemoryExchangeRateProvider : IGetExchangeRates
