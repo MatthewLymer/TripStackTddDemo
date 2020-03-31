@@ -9,6 +9,8 @@ namespace TripStack.TddDemo.WebApi.CurrencyExchange
 {
     internal sealed class CachingGetExchangeRatesDecorator : IGetExchangeRates
     {
+        private static readonly TimeSpan CacheExpiresIn = TimeSpan.FromMinutes(1);
+        
         private readonly IGetExchangeRates _inner;
         private readonly IDistributedCache _distributedCache;
 
@@ -24,46 +26,50 @@ namespace TripStack.TddDemo.WebApi.CurrencyExchange
 
             if (shouldInvert)
             {
-                var tmp = fromCurrency;
-                fromCurrency = toCurrency;
-                toCurrency = tmp;
+                Swap(ref fromCurrency, ref toCurrency);
             }
             
             var key = $"{fromCurrency}:{toCurrency}";
 
-            var rateString = await _distributedCache.GetStringAsync(key, token);
+            var rate = await TryGetRateAsync(key, token);
 
-            decimal rate;
-
-            if (rateString != null)
+            if (rate == decimal.Zero)
             {
-                rate = decimal.Parse(rateString);
-
-                if (shouldInvert)
-                {
-                    rate = 1 / rate;
-                }
-                
-                return rate;                
+                rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
+                await SaveRateAsync(key, rate, token);
             }
             
-            rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
-
-            rateString = rate.ToString(CultureInfo.InvariantCulture);
-
-            var cacheEntryOptions = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
-            };
-            
-            await _distributedCache.SetStringAsync(key, rateString, cacheEntryOptions, CancellationToken.None);
-
             if (shouldInvert)
             {
                 rate = 1 / rate;
             }
-            
+
             return rate;
+        }
+
+        private async Task<decimal> TryGetRateAsync(string key, CancellationToken token)
+        {
+            var rateString = await _distributedCache.GetStringAsync(key, token);
+            return rateString != null ? decimal.Parse(rateString) : decimal.Zero;
+        }
+
+        private Task SaveRateAsync(string key, decimal rate, CancellationToken token)
+        {
+            var rateString = rate.ToString(CultureInfo.InvariantCulture);
+
+            var cacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheExpiresIn
+            };
+
+            return _distributedCache.SetStringAsync(key, rateString, cacheEntryOptions, token);
+        }
+
+        private static void Swap(ref string a, ref string b)
+        {
+            var tmp = a;
+            a = b;
+            b = tmp;
         }
     }
 }
