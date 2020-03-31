@@ -23,6 +23,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 2. Ensure we're able to instantiate the class we want to test
     // 3. Ensure the class implements the interface we're looking to decorate
     // 4. Ensure the decorator returns value from inner service for cache miss
+    // 5. Ensure the value can be retrieved from cache
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -49,6 +50,22 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             Assert.Equal(expectedValue, result);
         }
 
+        [Fact]
+        public async Task ShouldRetrieveValueFromCache()
+        {
+            var inner = new MemoryExchangeRateProvider();
+            inner.Set("MXN", "EUR", 10m);
+            
+            var decorator = new CachingGetExchangeRatesDecorator(inner);
+
+            var value1 = await decorator.GetExchangeRateAsync("MXN", "EUR", CancellationToken.None);
+            inner.Clear();
+
+            var value2 = await decorator.GetExchangeRateAsync("MXN", "EUR", CancellationToken.None);
+            
+            Assert.Equal(value1, value2);
+        }
+
         private sealed class MemoryExchangeRateProvider : IGetExchangeRates
         {
             private readonly Dictionary<Tuple<string, string>, decimal> _rates 
@@ -65,21 +82,39 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             {
                 _rates[Tuple.Create(fromCurrency, toCurrency)] = rate;
             }
+
+            public void Clear()
+            {
+                _rates.Clear();
+            }
         }
     }
 
     internal sealed class CachingGetExchangeRatesDecorator : IGetExchangeRates
     {
         private readonly IGetExchangeRates _inner;
+        
+        private readonly Dictionary<Tuple<string, string>, decimal> _cachedRates = new Dictionary<Tuple<string, string>, decimal>();
 
         public CachingGetExchangeRatesDecorator(IGetExchangeRates inner)
         {
             _inner = inner;
         }
 
-        public Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
+        public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
         {
-            return _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
+            var key = Tuple.Create(fromCurrency, toCurrency);
+            
+            if (_cachedRates.TryGetValue(key, out var rate))
+            {
+                return rate;
+            }
+            
+            rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
+
+            _cachedRates[key] = rate;
+            
+            return rate;
         }
     }
 }
