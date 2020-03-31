@@ -20,16 +20,34 @@ namespace TripStack.TddDemo.WebApi.CurrencyExchange
 
         public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
         {
+            var shouldInvert = string.CompareOrdinal(fromCurrency, toCurrency) > 0;
+
+            if (shouldInvert)
+            {
+                var tmp = fromCurrency;
+                fromCurrency = toCurrency;
+                toCurrency = tmp;
+            }
+            
             var key = $"{fromCurrency}:{toCurrency}";
 
             var rateString = await _distributedCache.GetStringAsync(key, token);
 
+            decimal rate;
+
             if (rateString != null)
             {
-                return decimal.Parse(rateString);
+                rate = decimal.Parse(rateString);
+
+                if (shouldInvert)
+                {
+                    rate = 1 / rate;
+                }
+                
+                return rate;                
             }
             
-            var rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
+            rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
 
             rateString = rate.ToString(CultureInfo.InvariantCulture);
 
@@ -39,6 +57,11 @@ namespace TripStack.TddDemo.WebApi.CurrencyExchange
             };
             
             await _distributedCache.SetStringAsync(key, rateString, cacheEntryOptions, CancellationToken.None);
+
+            if (shouldInvert)
+            {
+                rate = 1 / rate;
+            }
             
             return rate;
         }

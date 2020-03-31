@@ -33,6 +33,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 7. Ensure cache expires after 1 minute
     // 8. Ensure unit test doesn't take 1 minute to execute
     // 9. Ensure we're using our new decorator
+    // 10. Ensure inverse requests are cached
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -52,13 +53,15 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             const decimal expectedValue = 5m;
             
             var inner = new MemoryExchangeRateProvider();
-            inner.Set("USD", "CAD", expectedValue);
+            inner.Set("CAD", "USD", 1 / expectedValue);
             
             var decorator = new CachingGetExchangeRatesDecorator(inner, distributedCache);
 
-            var result = await decorator.GetExchangeRateAsync("USD", "CAD", CancellationToken.None);
+            var value1 = await decorator.GetExchangeRateAsync("USD", "CAD", CancellationToken.None);
+            var value2 = await decorator.GetExchangeRateAsync("USD", "CAD", CancellationToken.None);
             
-            Assert.Equal(expectedValue, result);
+            Assert.Equal(expectedValue, value1);
+            Assert.Equal(expectedValue, value2);
         }
 
         [Fact]
@@ -103,6 +106,21 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             
             Assert.Equal(2m, value1);
             Assert.Equal(4m, value2);
+        }
+
+        [Fact]
+        public async Task ShouldNormalizeInnerServiceCalls()
+        {
+            var inner = new MemoryExchangeRateProvider();
+            inner.Set("CAD", "USD", 2m);
+            
+            var distributedCache = CreateDistributedCache(null);
+            
+            var decorator = new CachingGetExchangeRatesDecorator(inner, distributedCache);
+
+            var value = await decorator.GetExchangeRateAsync("USD", "CAD", CancellationToken.None);
+            
+            Assert.Equal(0.5m, value);
         }
 
         private sealed class MockSystemClock : ISystemClock
