@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using TripStack.TddDemo.CurrencyConverter.Abstractions;
+using TripStack.TddDemo.WebApi.CurrencyExchange;
 using Xunit;
 
 namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
@@ -32,6 +32,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 6. Ensure distributed cache is used to share cache between instances
     // 7. Ensure cache expires after 1 minute
     // 8. Ensure unit test doesn't take 1 minute to execute
+    // 9. Ensure we're using our new decorator
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -140,43 +141,6 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             {
                 _rates.Clear();
             }
-        }
-    }
-
-    internal sealed class CachingGetExchangeRatesDecorator : IGetExchangeRates
-    {
-        private readonly IGetExchangeRates _inner;
-        private readonly IDistributedCache _distributedCache;
-
-        public CachingGetExchangeRatesDecorator(IGetExchangeRates inner, IDistributedCache distributedCache)
-        {
-            _inner = inner;
-            _distributedCache = distributedCache;
-        }
-
-        public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
-        {
-            var key = $"{fromCurrency}:{toCurrency}";
-
-            var rateString = await _distributedCache.GetStringAsync(key, token);
-
-            if (rateString != null)
-            {
-                return decimal.Parse(rateString);
-            }
-            
-            var rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
-
-            rateString = rate.ToString(CultureInfo.InvariantCulture);
-
-            var cacheEntryOptions = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
-            };
-            
-            await _distributedCache.SetStringAsync(key, rateString, cacheEntryOptions, CancellationToken.None);
-            
-            return rate;
         }
     }
 }

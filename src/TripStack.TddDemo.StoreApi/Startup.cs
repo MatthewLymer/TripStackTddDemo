@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TripStack.TddDemo.CurrencyConverter.Abstractions;
 using TripStack.TddDemo.CurrencyExchange.ApiClient.DependencyInjection;
+using TripStack.TddDemo.WebApi.CurrencyExchange;
 using TripStack.TddDemo.WebApi.Settings;
 
 namespace TripStack.TddDemo.WebApi
@@ -35,6 +37,8 @@ namespace TripStack.TddDemo.WebApi
                 x.Url = settings.Url;
                 x.ApiKey = settings.ApiKey;
             });
+
+            services.Decorate<IGetExchangeRates, CachingGetExchangeRatesDecorator>();
         }
         
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
