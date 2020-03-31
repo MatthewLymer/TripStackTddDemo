@@ -15,6 +15,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 
     // Test Cases
     // 1. Ensure unit test setup works 
+    // 2. Ensure we're able to instantiate the class we want to test
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -26,7 +27,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         }
     }
 
-    public sealed class CachingGetExchangeRatesDecorator
+    internal sealed class CachingGetExchangeRatesDecorator
     {
     }
 }
