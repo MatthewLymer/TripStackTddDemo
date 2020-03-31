@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using TripStack.TddDemo.CurrencyConverter.Abstractions;
 using Xunit;
 
@@ -24,6 +28,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 3. Ensure the class implements the interface we're looking to decorate
     // 4. Ensure the decorator returns value from inner service for cache miss
     // 5. Ensure the value can be retrieved from cache
+    // 6. Ensure distributed cache is used to share cache between instances
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -31,19 +36,21 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         [Fact]
         public void ShouldInheritFromIGetExchangeRates()
         {
-            var decorator = new CachingGetExchangeRatesDecorator(null);
+            var decorator = new CachingGetExchangeRatesDecorator(null, null);
             Assert.IsAssignableFrom<IGetExchangeRates>(decorator);
         }
 
         [Fact]
         public async Task ShouldReturnInnerServiceValueIfCacheMiss()
         {
+            var distributedCache = CreateDistributedCache();
+            
             const decimal expectedValue = 5m;
             
             var inner = new MemoryExchangeRateProvider();
             inner.Set("USD", "CAD", expectedValue);
             
-            var decorator = new CachingGetExchangeRatesDecorator(inner);
+            var decorator = new CachingGetExchangeRatesDecorator(inner, distributedCache);
 
             var result = await decorator.GetExchangeRateAsync("USD", "CAD", CancellationToken.None);
             
@@ -51,19 +58,29 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
         }
 
         [Fact]
-        public async Task ShouldRetrieveValueFromCache()
+        public async Task ShouldCacheRatesUsingDistributedCache()
         {
-            var inner = new MemoryExchangeRateProvider();
-            inner.Set("MXN", "EUR", 10m);
+            var distributedCache = CreateDistributedCache();
             
-            var decorator = new CachingGetExchangeRatesDecorator(inner);
+            var inner = new MemoryExchangeRateProvider();
+            inner.Set("EUR", "GBP", 1.1m);
+            
+            var decorator1 = new CachingGetExchangeRatesDecorator(inner, distributedCache);
+            var decorator2 = new CachingGetExchangeRatesDecorator(inner, distributedCache);
 
-            var value1 = await decorator.GetExchangeRateAsync("MXN", "EUR", CancellationToken.None);
+            var value1 = await decorator1.GetExchangeRateAsync("EUR", "GBP", CancellationToken.None);
+            
             inner.Clear();
 
-            var value2 = await decorator.GetExchangeRateAsync("MXN", "EUR", CancellationToken.None);
+            var value2 = await decorator2.GetExchangeRateAsync("EUR", "GBP", CancellationToken.None);
             
             Assert.Equal(value1, value2);
+        }
+
+        private static MemoryDistributedCache CreateDistributedCache()
+        {
+            return new MemoryDistributedCache(
+                new OptionsWrapper<MemoryDistributedCacheOptions>(new MemoryDistributedCacheOptions()));
         }
 
         private sealed class MemoryExchangeRateProvider : IGetExchangeRates
@@ -93,26 +110,30 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     internal sealed class CachingGetExchangeRatesDecorator : IGetExchangeRates
     {
         private readonly IGetExchangeRates _inner;
-        
-        private readonly Dictionary<Tuple<string, string>, decimal> _cachedRates = new Dictionary<Tuple<string, string>, decimal>();
+        private readonly IDistributedCache _distributedCache;
 
-        public CachingGetExchangeRatesDecorator(IGetExchangeRates inner)
+        public CachingGetExchangeRatesDecorator(IGetExchangeRates inner, IDistributedCache distributedCache)
         {
             _inner = inner;
+            _distributedCache = distributedCache;
         }
 
         public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency, CancellationToken token)
         {
-            var key = Tuple.Create(fromCurrency, toCurrency);
-            
-            if (_cachedRates.TryGetValue(key, out var rate))
+            var key = $"{fromCurrency}:{toCurrency}";
+
+            var rateString = await _distributedCache.GetStringAsync(key, token);
+
+            if (rateString != null)
             {
-                return rate;
+                return decimal.Parse(rateString);
             }
             
-            rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
+            var rate = await _inner.GetExchangeRateAsync(fromCurrency, toCurrency, token);
 
-            _cachedRates[key] = rate;
+            rateString = rate.ToString(CultureInfo.InvariantCulture);
+
+            await _distributedCache.SetStringAsync(key, rateString, CancellationToken.None);
             
             return rate;
         }
