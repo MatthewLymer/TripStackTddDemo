@@ -29,6 +29,7 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
     // 4. Ensure the decorator returns value from inner service for cache miss
     // 5. Ensure the value can be retrieved from cache
     // 6. Ensure distributed cache is used to share cache between instances
+    // 7. Ensure cache expires after 1 minute
     // 
     
     public sealed class CachingGetExchangeRatesDecoratorTests
@@ -75,6 +76,28 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
             var value2 = await decorator2.GetExchangeRateAsync("EUR", "GBP", CancellationToken.None);
             
             Assert.Equal(value1, value2);
+        }
+
+        [Fact]
+        public async Task ShouldExpireCacheAfter1Minute()
+        {
+            var distributedCache = CreateDistributedCache();
+            
+            var inner = new MemoryExchangeRateProvider();
+            inner.Set("CAD", "USD", 2m);
+            
+            var decorator = new CachingGetExchangeRatesDecorator(inner, distributedCache);
+
+            var value1 = await decorator.GetExchangeRateAsync("CAD", "USD", CancellationToken.None);
+            
+            inner.Set("CAD", "USD", 4m);
+
+            await Task.Delay(TimeSpan.FromMinutes(1));
+
+            var value2 = await decorator.GetExchangeRateAsync("CAD", "USD", CancellationToken.None);
+            
+            Assert.Equal(2m, value1);
+            Assert.Equal(4m, value2);
         }
 
         private static MemoryDistributedCache CreateDistributedCache()
@@ -133,7 +156,12 @@ namespace TripStack.TddDemo.StoreApi.Tests.CurrencyExchange
 
             rateString = rate.ToString(CultureInfo.InvariantCulture);
 
-            await _distributedCache.SetStringAsync(key, rateString, CancellationToken.None);
+            var cacheEntryOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+            };
+            
+            await _distributedCache.SetStringAsync(key, rateString, cacheEntryOptions, CancellationToken.None);
             
             return rate;
         }
